@@ -19,16 +19,30 @@ def view_results(request):
     results = StudentResult.objects.all()
     return render(request, 'view_results.html', {'results': results})
 
+
 def login_view(request):
     if request.method == 'POST':
         username = request.POST['username']
         password = request.POST['password']
+
+        # Сначала проверяем аутентификацию через Django User
         user = authenticate(request, username=username, password=password)
         if user:
             login(request, user)
             return redirect('view_tests')
-        else:
+
+        # Если пользователь не найден, проверяем в модели Teacher
+        try:
+            teacher = Teacher.objects.get(nickname=username)
+            if teacher.check_password(password):  # Проверяем пароль
+                user = User.objects.create_user(username=username, password=password)
+                login(request, user)
+                return redirect('view_tests')
+            else:
+                return render(request, 'login.html', {'error': 'Неверное имя пользователя или пароль'})
+        except Teacher.DoesNotExist:
             return render(request, 'login.html', {'error': 'Неверное имя пользователя или пароль'})
+
     return render(request, 'login.html')
 
 def register_view(request):
