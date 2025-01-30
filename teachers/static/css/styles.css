@@ -93,3 +93,31 @@ body {
 .auth-form button:hover {
     background-color: #45a049;
 }
+
+.auth-link {
+    background-color: #4CAF50;  /* Зеленый фон */
+    color: white;               /* Белый цвет текста */
+    padding: 10px 20px;         /* Внутренние отступы */
+    border-radius: 4px;         /* Скругленные углы */
+    text-decoration: none;      /* Убираем подчеркивание */
+    font-weight: bold;          /* Жирный шрифт */
+    transition: background-color 0.3s; /* Плавный переход */
+}
+
+.auth-link:hover {
+    background-color: #45a049;  /* Цвет при наведении */
+}
+
+.auth-link.active {
+    background-color: #45a049;  /* Выделение активной ссылки */
+}
+
+.user-info {
+    width: 100%;
+    text-align: left;
+    color: #45a049;
+    font-weight: bold;
+    font-size: 20px;
+    padding-top: 15px;
+    padding-left: 10px;
+}

@@ -4,9 +4,13 @@
 
 {% block content %}
 <h1>Список тестов</h1>
-<ul>
-    {% for test in tests %}
-        <li>{{ test.name }} ({{ test.teacher.full_name }})</li>
-    {% endfor %}
-</ul>
+{% if not request.user.is_authenticated %}
+    <p>Для просмотра тестов необходимо <a href="{% url 'login' %}" class="auth-link">авторизоваться</a>.</p>
+{% else %}
+    <ul>
+        {% for test in tests %}
+            <li>{{ test.name }} ({{ test.teacher.full_name }})</li>
+        {% endfor %}
+    </ul>
+{% endif %}
 {% endblock %}

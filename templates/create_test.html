@@ -4,9 +4,13 @@
 
 {% block content %}
 <h1>Создать тест</h1>
-<form method="post">
-    {% csrf_token %}
-    {{ form.as_p }}
-    <button type="submit">Создать</button>
-</form>
+{% if not request.user.is_authenticated %}
+    <p>Для создания теста необходимо <a href="{% url 'login' %}" class="auth-link">авторизоваться</a>.</p>
+{% else %}
+    <form method="post">
+        {% csrf_token %}
+        {{ form.as_p }}
+        <button type="submit">Создать</button>
+    </form>
+{% endif %}
 {% endblock %}

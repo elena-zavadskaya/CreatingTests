@@ -60,8 +60,8 @@ def register_view(request):
                 # Создаем пользователя Django (для аутентификации)
                 user = User.objects.create_user(username=username, password=password)
 
-                # Создаем преподавателя
-                teacher = Teacher(full_name=full_name, nickname=username)
+                # Создаем преподавателя и связываем с пользователем
+                teacher = Teacher(full_name=full_name, nickname=username, user=user)
                 teacher.set_password(password)  # Хэшируем пароль
                 teacher.save()
 

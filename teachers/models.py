@@ -1,3 +1,4 @@
+from django.contrib.auth.models import User
 from django.db import models
 from django.contrib.auth.hashers import make_password, check_password
 
@@ -26,6 +27,9 @@ class Teacher(models.Model):
         max_length=255,
         verbose_name="Пароль"
     )
+
+    # Связь с пользователем Django
+    user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='teacher')
 
     # Метод для сохранения хэшированного пароля
     def set_password(self, raw_password):

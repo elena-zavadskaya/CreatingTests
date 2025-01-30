@@ -1,4 +1,5 @@
 {% load static %}
+
 <!DOCTYPE html>
 <html lang="ru">
 <head>
@@ -20,6 +21,16 @@
         <a href="{% url 'create_test' %}">Создать тест</a>
         <a href="{% url 'view_tests' %}">Просмотреть тесты</a>
         <a href="{% url 'view_results' %}">Результаты студентов</a>
+
+        {% if request.user.is_authenticated %}
+            <div class="user-info">
+                {% if request.user.teacher %}
+                    <p>{{ request.user.teacher.full_name }}</p>
+                {% else %}
+                    <p>Преподаватель не найден</p>
+                {% endif %}
+            </div>
+        {% endif %}
     </div>
 
     <!-- Основной контент -->
