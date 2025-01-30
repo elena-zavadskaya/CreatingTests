@@ -7,9 +7,6 @@ from .models import Test, StudentResult, Teacher, Question, Answer
 
 
 def create_test(request):
-    if not request.user.is_authenticated:
-        return redirect('login')
-
     if request.method == 'POST':
         test_name = request.POST.get('test-name')
         questions = []
@@ -81,7 +78,6 @@ def create_test(request):
                         test.question_count = len(questions)
                         test.save()
 
-                        messages.success(request, 'Тест успешно создан!')
                         return redirect('view_tests')
                 except Exception as e:
                     messages.error(request, f'Ошибка при создании теста: {str(e)}')
@@ -89,8 +85,20 @@ def create_test(request):
     return render(request, 'create_test.html')
 
 def view_tests(request):
-    tests = Test.objects.all()
-    return render(request, 'view_tests.html', {'tests': tests})
+    if not request.user.is_authenticated:
+        # Если пользователь не авторизован, передаем пустой список тестов
+        return render(request, 'view_tests.html', {'tests': []})
+
+    try:
+        # Получаем текущего преподавателя
+        teacher = Teacher.objects.get(user=request.user)
+
+        # Фильтруем тесты по текущему преподавателю
+        tests = Test.objects.filter(teacher=teacher)
+        return render(request, 'view_tests.html', {'tests': tests})
+    except Teacher.DoesNotExist:
+        # Если у пользователя нет связанного объекта Teacher, передаем пустой список тестов
+        return render(request, 'view_tests.html', {'tests': []})
 
 def view_results(request):
     results = StudentResult.objects.all()
