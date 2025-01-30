@@ -1,0 +1,27 @@
+{% extends 'base.html' %}
+
+{% block title %}Результаты студентов{% endblock %}
+
+{% block content %}
+<h1>Результаты студентов</h1>
+<table>
+    <thead>
+        <tr>
+            <th>Студент</th>
+            <th>Тест</th>
+            <th>Правильные ответы</th>
+            <th>Всего вопросов</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for result in results %}
+            <tr>
+                <td>{{ result.student.full_name }}</td>
+                <td>{{ result.test.name }}</td>
+                <td>{{ result.correct_answers }}</td>
+                <td>{{ result.total_questions }}</td>
+            </tr>
+        {% endfor %}
+    </tbody>
+</table>
+{% endblock %}

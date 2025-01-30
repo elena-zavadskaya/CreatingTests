@@ -1,0 +1,12 @@
+{% extends 'base.html' %}
+
+{% block title %}Просмотреть тесты{% endblock %}
+
+{% block content %}
+<h1>Список тестов</h1>
+<ul>
+    {% for test in tests %}
+        <li>{{ test.name }} ({{ test.teacher.full_name }})</li>
+    {% endfor %}
+</ul>
+{% endblock %}
