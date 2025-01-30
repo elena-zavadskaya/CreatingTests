@@ -7,6 +7,16 @@
 {% if not request.user.is_authenticated %}
     <p>Для создания теста необходимо <a href="{% url 'login' %}" class="auth-link">авторизоваться</a>.</p>
 {% else %}
+    {% if messages %}
+        <div class="messages">
+            {% for message in messages %}
+                <div class="alert {% if message.tags %}alert-{{ message.tags }}{% endif %}">
+                    {{ message }}
+                </div>
+            {% endfor %}
+        </div>
+    {% endif %}
+
     <form id="create-test-form" method="post">
         {% csrf_token %}
         <div class="form-group">
@@ -111,6 +121,22 @@
 
     .auth-button:hover {
         background-color: #45a049;
+    }
+
+    .messages .alert {
+        padding: 10px;
+        margin-bottom: 20px;
+        border-radius: 4px;
+    }
+
+    .messages .alert-error {
+        background-color: #ffebee;
+        color: #c62828;
+    }
+
+    .messages .alert-success {
+        background-color: #e8f5e9;
+        color: #2e7d32;
     }
 </style>
 {% endblock %}
