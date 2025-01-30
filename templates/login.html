@@ -1,0 +1,26 @@
+{% extends 'base.html' %}
+
+{% block title %}Авторизация{% endblock %}
+
+{% block content %}
+<div class="auth-links">
+    <a href="{% url 'login' %}" class="active">Авторизация</a>
+    <a href="{% url 'register' %}">Регистрация</a>
+</div>
+
+<div class="auth-form">
+    <h1>Авторизация</h1>
+    <form method="post">
+        {% csrf_token %}
+        <div>
+            <label for="username">Имя пользователя:</label>
+            <input type="text" id="username" name="username" required>
+        </div>
+        <div>
+            <label for="password">Пароль:</label>
+            <input type="password" id="password" name="password" required>
+        </div>
+        <button type="submit">Войти</button>
+    </form>
+</div>
+{% endblock %}

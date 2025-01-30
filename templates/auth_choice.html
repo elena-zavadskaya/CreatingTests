@@ -1,0 +1,11 @@
+{% extends 'base.html' %}
+
+{% block title %}Вход/Регистрация{% endblock %}
+
+{% block content %}
+<h1>Выберите действие</h1>
+<div>
+    <a href="{% url 'login' %}" class="auth-link">Авторизация</a>
+    <a href="{% url 'register' %}" class="auth-link">Регистрация</a>
+</div>
+{% endblock %}
