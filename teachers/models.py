@@ -12,6 +12,14 @@ class Teacher(models.Model):
         help_text="Введите полное имя преподавателя (Фамилия Имя Отчество)"
     )
 
+    # Никнейм преподавателя
+    nickname = models.CharField(
+        max_length=50,
+        unique=True,
+        verbose_name="Никнейм",
+        help_text="Введите уникальный никнейм"
+    )
+
     # Хэшированный пароль преподавателя
     password = models.CharField(
         max_length=255,

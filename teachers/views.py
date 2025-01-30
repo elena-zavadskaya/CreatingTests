@@ -1,4 +1,5 @@
 from django.contrib.auth.models import User
+from django.db import transaction
 from django.shortcuts import render, redirect
 from django.contrib.auth import login, logout, authenticate
 from .models import Test, StudentResult, Teacher
@@ -36,17 +37,26 @@ def register_view(request):
         username = request.POST['username']
         password = request.POST['password']
 
-        # Создаем пользователя
-        user = User.objects.create_user(username=username, password=password)
-        user.save()
+        # Проверяем, существует ли уже пользователь с таким ником
+        if User.objects.filter(username=username).exists():
+            return render(request, 'register.html', {'error': 'Никнейм уже используется'})
 
-        # Создаем преподавателя или студента (в зависимости от вашей логики)
-        teacher = Teacher(full_name=full_name, password=password)
-        teacher.save()
+        try:
+            with transaction.atomic():  # Оборачиваем в транзакцию, чтобы избежать ошибок
+                # Создаем пользователя Django (для аутентификации)
+                user = User.objects.create_user(username=username, password=password)
 
-        # Авторизуем пользователя
-        login(request, user)
-        return redirect('view_tests')
+                # Создаем преподавателя
+                teacher = Teacher(full_name=full_name, nickname=username)
+                teacher.set_password(password)  # Хэшируем пароль
+                teacher.save()
+
+                # Авторизуем пользователя
+                login(request, user)
+                return redirect('view_tests')
+        except Exception as e:
+            return render(request, 'register.html', {'error': f'Ошибка регистрации: {str(e)}'})
+
     return render(request, 'register.html')
 
 def logout_view(request):
