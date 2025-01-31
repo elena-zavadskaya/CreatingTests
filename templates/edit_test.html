@@ -1,45 +1,53 @@
 {% extends 'base.html' %}
 
-{% block title %}Создать тест{% endblock %}
+{% block title %}Редактировать тест{% endblock %}
 
 {% block content %}
-<h1>Создать тест</h1>
-{% if not request.user.is_authenticated %}
-    <p>Для создания теста необходимо <a href="{% url 'login' %}" class="auth-link">авторизоваться</a>.</p>
-{% else %}
-    {% if messages %}
-        <div class="messages">
-            {% for message in messages %}
-                <div class="alert {% if message.tags %}alert-{{ message.tags }}{% endif %}">
-                    {{ message }}
+<h1>Редактировать тест: {{ test.name }}</h1>
+<form method="post">
+    {% csrf_token %}
+    <div class="form-group">
+        <label for="test-name">Название теста:</label>
+        <input type="text" id="test-name" name="test-name" value="{{ test.name }}" required>
+    </div>
+
+    <div id="questions-container">
+        {% for question in test.questions.all %}
+            <div class="question">
+                <div class="question-header">
+                    <h3>Вопрос {{ forloop.counter }}</h3>
+                    <button type="button" class="delete-question" onclick="this.parentElement.parentElement.remove(); updateQuestionNumbers();">×</button>
                 </div>
-            {% endfor %}
-        </div>
-    {% endif %}
+                <div class="form-group">
+                    <label for="question-text-{{ question.id }}">Текст вопроса:</label>
+                    <input type="text" id="question-text-{{ question.id }}" name="question-text-{{ question.id }}" value="{{ question.question_text }}" required>
+                </div>
+                <div class="form-group">
+                    <label>Варианты ответов:</label>
+                    {% for answer in question.answers.all %}
+                        <div class="answer-group">
+                            <input type="text" id="answer-{{ question.id }}-{{ forloop.counter }}" name="answer-{{ question.id }}-{{ forloop.counter }}" value="{{ answer.answer_text }}" required>
+                            <label>
+                                <input type="radio" name="correct-answer-{{ question.id }}" value="{{ forloop.counter }}" {% if answer.is_correct %}checked{% endif %}> Верный ответ
+                            </label>
+                        </div>
+                    {% endfor %}
+                </div>
+            </div>
+        {% endfor %}
+    </div>
 
-    <form id="create-test-form" method="post">
-        {% csrf_token %}
-        <div class="form-group">
-            <label for="test-name">Название теста:</label>
-            <input type="text" id="test-name" name="test-name" required>
-        </div>
-
-        <div id="questions-container">
-            <!-- Здесь будут добавляться вопросы -->
-        </div>
-
-        <button type="button" id="add-question" class="some-button">Добавить вопрос</button>
-        <button type="submit" class="some-button">Создать тест</button>
-    </form>
-{% endif %}
+    <button type="button" id="add-question" class="some-button">Добавить вопрос</button>
+    <button type="submit" class="some-button">Сохранить изменения</button>
+    <button type="button" id="delete-test" class="delete-button">Удалить тест</button>
+</form>
 
 <script>
     document.addEventListener('DOMContentLoaded', function () {
         const questionsContainer = document.getElementById('questions-container');
         const addQuestionButton = document.getElementById('add-question');
-        const createTestForm = document.getElementById('create-test-form');
 
-        let questionCount = 0;
+        let questionCount = {{ test.questions.count }} || 0;
 
         // Функция для добавления вопроса
         addQuestionButton.addEventListener('click', function () {
@@ -53,16 +61,16 @@
                     <button type="button" class="delete-question" onclick="this.parentElement.parentElement.remove(); updateQuestionNumbers();">×</button>
                 </div>
                 <div class="form-group">
-                    <label for="question-text-${questionCount}">Текст вопроса:</label>
-                    <input type="text" id="question-text-${questionCount}" name="question-text-${questionCount}" required>
+                    <label for="question-text-new-${questionCount}">Текст вопроса:</label>
+                    <input type="text" id="question-text-new-${questionCount}" name="question-text-new-${questionCount}" required>
                 </div>
                 <div class="form-group">
                     <label>Варианты ответов:</label>
                     ${[1, 2, 3, 4].map((num) => `
                         <div class="answer-group">
-                            <input type="text" id="answer-${questionCount}-${num}" name="answer-${questionCount}-${num}" placeholder="Вариант ответа ${num}" required>
+                            <input type="text" id="answer-new-${questionCount}-${num}" name="answer-new-${questionCount}-${num}" placeholder="Вариант ответа ${num}" required>
                             <label>
-                                <input type="radio" name="correct-answer-${questionCount}" value="${num}" required> Верный ответ
+                                <input type="radio" name="correct-answer-new-${questionCount}" value="${num}" required> Верный ответ
                             </label>
                         </div>
                     `).join('')}
@@ -83,15 +91,6 @@
                 }
             });
         }
-
-        // Проверка наличия вопросов перед отправкой формы
-        createTestForm.addEventListener('submit', function (event) {
-            const questions = questionsContainer.querySelectorAll('.question');
-            if (questions.length === 0) {
-                event.preventDefault();
-                alert('Добавьте хотя бы один вопрос перед сохранением теста.');
-            }
-        });
     });
 </script>
 
@@ -143,10 +142,30 @@
         cursor: pointer;
         transition: background-color 0.3s;
         margin-right: 10px;
+        text-decoration: none;
+        display: inline-block;
     }
 
     .some-button:hover {
         background-color: #45a049;
+    }
+
+    .delete-button {
+        background-color: #ff4444;
+        color: white;
+        padding: 10px 20px;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+        transition: background-color 0.3s;
+        margin-right: 10px;
+        text-decoration: none;
+        display: inline-block;
+        float: right; 
+    }
+
+    .delete-button:hover {
+        background-color: #cc0000;
     }
 
     .question-header {
@@ -166,26 +185,11 @@
         font-size: 16px;
         line-height: 24px;
         text-align: center;
+        margin-right: 10px;
     }
 
     .delete-question:hover {
         background-color: #cc0000;
-    }
-
-    .messages .alert {
-        padding: 10px;
-        margin-bottom: 20px;
-        border-radius: 4px;
-    }
-
-    .messages .alert-error {
-        background-color: #ffebee;
-        color: #c62828;
-    }
-
-    .messages .alert-success {
-        background-color: #e8f5e9;
-        color: #2e7d32;
     }
 </style>
 {% endblock %}

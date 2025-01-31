@@ -1,7 +1,7 @@
 from django.contrib import messages
 from django.contrib.auth.models import User
 from django.db import transaction
-from django.shortcuts import render, redirect
+from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth import login, logout, authenticate
 from .models import Test, StudentResult, Teacher, Question, Answer
 
@@ -99,6 +99,19 @@ def view_tests(request):
     except Teacher.DoesNotExist:
         # Если у пользователя нет связанного объекта Teacher, передаем пустой список тестов
         return render(request, 'view_tests.html', {'tests': []})
+
+def edit_test(request, test_id):
+    if not request.user.is_authenticated:
+        return redirect('login')
+
+    # Получаем тест по ID
+    test = get_object_or_404(Test, id=test_id)
+
+    # Проверяем, что тест принадлежит текущему преподавателю
+    if test.teacher.user != request.user:
+        return redirect('view_tests')
+
+    return render(request, 'edit_test.html', {'test': test})
 
 def view_results(request):
     results = StudentResult.objects.all()
