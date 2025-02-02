@@ -1,5 +1,7 @@
+from django.contrib.auth.models import User
 from django.db import models
-from django.contrib.auth.hashers import make_password
+from django.contrib.auth.hashers import make_password, check_password
+
 
 class Teacher(models.Model):
     # Уникальный ID создается автоматически Django как первичный ключ
@@ -12,16 +14,31 @@ class Teacher(models.Model):
         help_text="Введите полное имя преподавателя (Фамилия Имя Отчество)"
     )
 
+    # Никнейм преподавателя
+    nickname = models.CharField(
+        max_length=50,
+        unique=True,
+        verbose_name="Никнейм",
+        help_text="Введите уникальный никнейм"
+    )
+
     # Хэшированный пароль преподавателя
     password = models.CharField(
         max_length=255,
         verbose_name="Пароль"
     )
 
+    # Связь с пользователем Django
+    user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='teacher')
+
     # Метод для сохранения хэшированного пароля
     def set_password(self, raw_password):
         self.password = make_password(raw_password)
         self.save()
+
+    # Метод для проверки хэшированного пароля
+    def check_password(self, raw_password):
+        return check_password(raw_password, self.password)
 
     def __str__(self):
         return self.full_name
