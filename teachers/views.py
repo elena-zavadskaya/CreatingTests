@@ -3,7 +3,7 @@ from django.contrib.auth.models import User
 from django.db import transaction
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth import login, logout, authenticate
-from .models import Test, StudentResult, Teacher, Question, Answer
+from .models import Test, StudentResult, Teacher, Question, Answer, StudentAnswer
 
 
 def create_test(request):
@@ -115,7 +115,15 @@ def edit_test(request, test_id):
 
 def view_results(request):
     if not request.user.is_authenticated:
-        return redirect('login')
+        # Если у пользователя нет связанного объекта Teacher, передаем пустой список результатов
+        return render(request, 'view_results.html', {'results': []})
+
+    # Получаем текущего преподавателя
+    try:
+        teacher = Teacher.objects.get(user=request.user)
+    except Teacher.DoesNotExist:
+        # Если у пользователя нет связанного объекта Teacher, отображаем пустой список
+        return render(request, 'view_results.html', {'results': []})
 
     # Получаем параметры поиска из GET-запроса
     student_name = request.GET.get('student_name', '')
@@ -125,8 +133,10 @@ def view_results(request):
     sort_by = request.GET.get('sort', '')
     order = request.GET.get('order', 'asc')
 
-    # Фильтруем результаты
-    results = StudentResult.objects.all()
+    # Фильтруем результаты по тестам, созданным текущим преподавателем
+    results = StudentResult.objects.filter(test__teacher=teacher)
+
+    # Дополнительная фильтрация по имени студента и названию теста
     if student_name:
         results = results.filter(student__full_name__icontains=student_name)
     if test_name:
@@ -144,6 +154,34 @@ def view_results(request):
         'request': request,  # Передаем request для сохранения значений в форме
     }
     return render(request, 'view_results.html', context)
+
+def result_detail(request, result_id):
+    if not request.user.is_authenticated:
+        return redirect('login')
+
+    # Получаем результат по ID
+    result = get_object_or_404(StudentResult, id=result_id)
+
+    # Проверяем, что тест принадлежит текущему преподавателю
+    if result.test.teacher.user != request.user:
+        return redirect('view_results')
+
+    # Получаем все ответы студента на этот тест
+    student_answers = StudentAnswer.objects.filter(
+        student=result.student,
+        question__test=result.test
+    ).select_related('question', 'selected_answer')
+
+    # Добавляем правильный ответ для каждого вопроса
+    for answer in student_answers:
+        answer.correct_answer = answer.question.answers.filter(is_correct=True).first()
+
+    # Передаем данные в шаблон
+    context = {
+        'result': result,
+        'student_answers': student_answers,
+    }
+    return render(request, 'result_detail.html', context)
 
 
 def login_view(request):

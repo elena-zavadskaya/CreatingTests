@@ -1,0 +1,88 @@
+{% extends 'base.html' %}
+
+{% block title %}Подробная информация о результате{% endblock %}
+
+{% block content %}
+<h1>Подробная информация о результате</h1>
+<a href="{% url 'view_results' %}" class="back-button">Назад к результатам</a>
+
+<div class="result-info">
+    <p><strong>Студент:</strong> {{ result.student.full_name }}</p>
+    <p><strong>Тест:</strong> {{ result.test.name }}</p>
+    <p><strong>Правильные ответы:</strong> {{ result.correct_answers }} из {{ result.total_questions }}</p>
+    <p><strong>Время прохождения:</strong> {{ result.attempt_timestamp|date:"d.m.Y H:i" }}</p>
+</div>
+
+<h2>Ответы студента</h2>
+<table class="answers-table">
+    <thead>
+        <tr>
+            <th>Вопрос</th>
+            <th>Выбранный ответ</th>
+            <th>Правильный ответ</th>
+            <th>Результат</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for answer in student_answers %}
+            <tr>
+                <td>{{ answer.question.question_text }}</td>
+                <td>{{ answer.selected_answer.answer_text }}</td>
+                <td>{{ answer.correct_answer.answer_text }}</td>
+                <td>
+                    {% if answer.is_correct %}
+                        <span style="color: green;">Правильно</span>
+                    {% else %}
+                        <span style="color: red;">Неправильно</span>
+                    {% endif %}
+                </td>
+            </tr>
+        {% endfor %}
+    </tbody>
+</table>
+
+<style>
+    .back-button {
+        display: inline-block;
+        margin-bottom: 20px;
+        padding: 10px 20px;
+        background-color: #4CAF50;
+        color: white;
+        text-decoration: none;
+        border-radius: 4px;
+    }
+
+    .back-button:hover {
+        background-color: #45a049;
+    }
+
+    .result-info {
+        margin-bottom: 20px;
+    }
+
+    .result-info p {
+        margin: 5px 0;
+    }
+
+    .answers-table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-top: 20px;
+    }
+
+    .answers-table th, .answers-table td {
+        padding: 12px;
+        text-align: left;
+        border-bottom: 1px solid #ddd;
+    }
+
+    .answers-table th {
+        background-color: #4CAF50;
+        color: white;
+    }
+
+    .answers-table tr:hover {
+        background-color: #f5f5f5;
+    }
+</style>
+{% endblock %}
