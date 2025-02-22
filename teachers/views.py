@@ -114,8 +114,36 @@ def edit_test(request, test_id):
     return render(request, 'edit_test.html', {'test': test})
 
 def view_results(request):
+    if not request.user.is_authenticated:
+        return redirect('login')
+
+    # Получаем параметры поиска из GET-запроса
+    student_name = request.GET.get('student_name', '')
+    test_name = request.GET.get('test_name', '')
+
+    # Получаем параметры сортировки
+    sort_by = request.GET.get('sort', '')
+    order = request.GET.get('order', 'asc')
+
+    # Фильтруем результаты
     results = StudentResult.objects.all()
-    return render(request, 'view_results.html', {'results': results})
+    if student_name:
+        results = results.filter(student__full_name__icontains=student_name)
+    if test_name:
+        results = results.filter(test__name__icontains=test_name)
+
+    # Сортируем результаты
+    if sort_by:
+        if order == 'desc':
+            sort_by = f'-{sort_by}'
+        results = results.order_by(sort_by)
+
+    # Передаем результаты в шаблон
+    context = {
+        'results': results,
+        'request': request,  # Передаем request для сохранения значений в форме
+    }
+    return render(request, 'view_results.html', context)
 
 
 def login_view(request):
