@@ -4,24 +4,154 @@
 
 {% block content %}
 <h1>Результаты студентов</h1>
-<table>
-    <thead>
-        <tr>
-            <th>Студент</th>
-            <th>Тест</th>
-            <th>Правильные ответы</th>
-            <th>Всего вопросов</th>
-        </tr>
-    </thead>
-    <tbody>
-        {% for result in results %}
-            <tr>
-                <td>{{ result.student.full_name }}</td>
-                <td>{{ result.test.name }}</td>
-                <td>{{ result.correct_answers }}</td>
-                <td>{{ result.total_questions }}</td>
-            </tr>
-        {% endfor %}
-    </tbody>
-</table>
+{% if not request.user.is_authenticated %}
+    <p>Для просмотра результатов необходимо <a href="{% url 'login' %}" class="auth-link">авторизоваться</a>.</p>
+{% else %}
+    <!-- Форма поиска -->
+    <form method="get" action="{% url 'view_results' %}" class="search-form">
+        <input type="text" name="student_name" placeholder="Имя студента" value="{{ request.GET.student_name }}">
+        <input type="text" name="test_name" placeholder="Название теста" value="{{ request.GET.test_name }}">
+        <button type="submit" class="search-button">Поиск</button>
+        <a href="{% url 'view_results' %}" class="clear-button">Сбросить</a>
+    </form>
+
+    {% if results %}
+        <!-- Если результаты найдены, отображаем таблицу -->
+        <table class="results-table">
+            <thead>
+                <tr>
+                    <th>№</th>
+                    <th>
+                        <a href="?sort=student&order={% if request.GET.sort == 'student' and request.GET.order == 'asc' %}desc{% else %}asc{% endif %}&student_name={{ request.GET.student_name }}&test_name={{ request.GET.test_name }}">
+                            Студент {% if request.GET.sort == 'student' %}{% if request.GET.order == 'asc' %}▲{% else %}▼{% endif %}{% endif %}
+                        </a>
+                    </th>
+                    <th>
+                        <a href="?sort=test&order={% if request.GET.sort == 'test' and request.GET.order == 'asc' %}desc{% else %}asc{% endif %}&student_name={{ request.GET.student_name }}&test_name={{ request.GET.test_name }}">
+                            Тест {% if request.GET.sort == 'test' %}{% if request.GET.order == 'asc' %}▲{% else %}▼{% endif %}{% endif %}
+                        </a>
+                    </th>
+                    <th>
+                        <a href="?sort=correct_answers&order={% if request.GET.sort == 'correct_answers' and request.GET.order == 'asc' %}desc{% else %}asc{% endif %}&student_name={{ request.GET.student_name }}&test_name={{ request.GET.test_name }}">
+                            Правильные ответы {% if request.GET.sort == 'correct_answers' %}{% if request.GET.order == 'asc' %}▲{% else %}▼{% endif %}{% endif %}
+                        </a>
+                    </th>
+                    <th>
+                        <a href="?sort=total_questions&order={% if request.GET.sort == 'total_questions' and request.GET.order == 'asc' %}desc{% else %}asc{% endif %}&student_name={{ request.GET.student_name }}&test_name={{ request.GET.test_name }}">
+                            Всего вопросов {% if request.GET.sort == 'total_questions' %}{% if request.GET.order == 'asc' %}▲{% else %}▼{% endif %}{% endif %}
+                        </a>
+                    </th>
+                    <th>
+                        <a href="?sort=attempt_timestamp&order={% if request.GET.sort == 'attempt_timestamp' and request.GET.order == 'asc' %}desc{% else %}asc{% endif %}&student_name={{ request.GET.student_name }}&test_name={{ request.GET.test_name }}">
+                            Время прохождения {% if request.GET.sort == 'attempt_timestamp' %}{% if request.GET.order == 'asc' %}▲{% else %}▼{% endif %}{% endif %}
+                        </a>
+                    </th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for result in results %}
+                    <tr onclick="window.location='{% url 'result_detail' result.id %}'" style="cursor: pointer;">
+                        <td>{{ forloop.counter }}</td>
+                        <td>{{ result.student.full_name }}</td>
+                        <td>{{ result.test.name }}</td>
+                        <td>{{ result.correct_answers }}</td>
+                        <td>{{ result.total_questions }}</td>
+                        <td>{{ result.attempt_timestamp|date:"d.m.Y H:i" }}</td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    {% else %}
+        <!-- Если результатов нет, отображаем сообщение -->
+        <p class="no-results-message">По вашему запросу ничего не найдено.</p>
+    {% endif %}
+{% endif %}
+
+<style>
+    .results-table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-top: 20px;
+    }
+
+    .results-table th, .results-table td {
+        padding: 12px;
+        text-align: left;
+        border-bottom: 1px solid #ddd;
+    }
+
+    .results-table th {
+        background-color: #4CAF50;
+        color: white;
+    }
+
+    .results-table th a {
+        color: white;
+        text-decoration: none;
+    }
+
+    .results-table th a:hover {
+        text-decoration: underline;
+    }
+
+    .results-table tr:hover {
+        background-color: #f5f5f5;
+    }
+
+    .auth-link {
+        color: #4CAF50;
+        text-decoration: none;
+    }
+
+    .auth-link:hover {
+        text-decoration: underline;
+    }
+
+    .search-form {
+        margin-bottom: 20px;
+        display: flex;
+        gap: 10px;
+    }
+
+    .search-form input {
+        padding: 8px;
+        border: 1px solid #ddd;
+        border-radius: 4px;
+        flex: 1;
+    }
+
+    .search-button, .clear-button {
+        padding: 8px 16px;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+        text-decoration: none;
+        font-size: 14px;
+    }
+
+    .search-button {
+        background-color: #4CAF50;
+        color: white;
+    }
+
+    .search-button:hover {
+        background-color: #45a049;
+    }
+
+    .clear-button {
+        background-color: #f44336;
+        color: white;
+    }
+
+    .clear-button:hover {
+        background-color: #d32f2f;
+    }
+
+    .no-results-message {
+        text-align: center;
+        font-size: 1.2rem;
+        color: #777;
+        margin-top: 20px;
+    }
+</style>
 {% endblock %}

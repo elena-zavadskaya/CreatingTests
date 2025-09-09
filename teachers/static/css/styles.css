@@ -1,0 +1,123 @@
+body {
+    margin: 0;
+    font-family: Arial, sans-serif;
+    display: flex;
+}
+.navbar {
+    width: 200px;
+    background-color: #333;
+    color: white;
+    padding: 20px;
+    height: 100vh;
+    box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1);
+}
+.navbar a {
+    color: white;
+    text-decoration: none;
+    display: block;
+    padding: 10px;
+    margin: 5px 0;
+    border-radius: 4px;
+    transition: background-color 0.3s;
+}
+.navbar a:hover {
+    background-color: #555;
+}
+.content {
+    flex-grow: 1;
+    padding: 20px;
+}
+.auth-button {
+    background-color: #4CAF50;
+    color: white;
+    padding: 10px;
+    text-align: center;
+    border-radius: 4px;
+    margin-bottom: 20px;
+}
+.auth-button:hover {
+    background-color: #45a049;
+}
+.auth-links {
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+    margin-bottom: 20px;
+}
+.auth-links a {
+    padding: 10px 20px;
+    background-color: #4CAF50;
+    color: white;
+    text-decoration: none;
+    border-radius: 4px;
+    transition: background-color 0.3s;
+}
+.auth-links a:hover {
+    background-color: #45a049;
+}
+.auth-links a.active {
+    background-color: #45a049;
+    font-weight: bold;
+}
+.auth-form {
+    max-width: 400px;
+    margin: 0 auto;
+    padding: 20px;
+    background-color: #f9f9f9;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+}
+.auth-form label {
+    display: block;
+    margin-bottom: 8px;
+    font-weight: bold;
+}
+.auth-form input {
+    width: 97%;
+    padding: 10px 0px 10px 10px;
+    margin-bottom: 15px;
+    margin-right: 10px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+}
+.auth-form button {
+    width: 100%;
+    padding: 10px;
+    background-color: #4CAF50;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+}
+.auth-form button:hover {
+    background-color: #45a049;
+}
+
+.auth-link {
+    background-color: #4CAF50;  /* Зеленый фон */
+    color: white;               /* Белый цвет текста */
+    padding: 10px 20px;         /* Внутренние отступы */
+    border-radius: 4px;         /* Скругленные углы */
+    text-decoration: none;      /* Убираем подчеркивание */
+    font-weight: bold;          /* Жирный шрифт */
+    transition: background-color 0.3s; /* Плавный переход */
+}
+
+.auth-link:hover {
+    background-color: #45a049;  /* Цвет при наведении */
+}
+
+.auth-link.active {
+    background-color: #45a049;  /* Выделение активной ссылки */
+}
+
+.user-info {
+    width: 100%;
+    text-align: left;
+    color: #45a049;
+    font-weight: bold;
+    font-size: 20px;
+    padding-top: 15px;
+    padding-left: 10px;
+}

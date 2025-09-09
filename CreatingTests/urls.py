@@ -1,19 +1,3 @@
-"""
-URL configuration for CreatingTests project.
-
-The `urlpatterns` list routes URLs to views. For more information please see:
-    https://docs.djangoproject.com/en/5.1/topics/http/urls/
-Examples:
-Function views
-    1. Add an import:  from my_app import views
-    2. Add a URL to urlpatterns:  path('', views.home, name='home')
-Class-based views
-    1. Add an import:  from other_app.views import Home
-    2. Add a URL to urlpatterns:  path('', Home.as_view(), name='home')
-Including another URLconf
-    1. Import the include() function: from django.urls import include, path
-    2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
-"""
 from django.contrib import admin
 from django.urls import path
 from django.views.generic import RedirectView
@@ -27,6 +11,8 @@ urlpatterns = [
     path('register/', views.register_view, name='register'),
     path('create-test/', views.create_test, name='create_test'),
     path('view-tests/', views.view_tests, name='view_tests'),
+    path('edit-test/<int:test_id>/', views.edit_test, name='edit_test'),
     path('view-results/', views.view_results, name='view_results'),
+    path('result-detail/<int:result_id>/', views.result_detail, name='result_detail'),
     path('logout/', views.logout_view, name='logout'),
 ]
